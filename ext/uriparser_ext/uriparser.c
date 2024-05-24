@@ -126,7 +126,46 @@ rb_uriparser_s_allocate(VALUE klass)
 }
 
 static VALUE
+rb_uriparser_s_can_parse(VALUE klass, VALUE uri_obj)
+{
+    char *str_uri = StringValueCStr(uri_obj);
+    UriUriA *uri = ALLOC(UriUriA);
+
+    int result = parse_uri(str_uri, uri);
+    free_uri(uri);
+
+    if (result == URI_SUCCESS) {
+        return Qtrue;
+    } else {
+        return Qfalse;
+    }
+}
+
+static VALUE
 rb_uriparser_s_parse(VALUE klass, VALUE uri_obj)
+{
+    char *str_uri = StringValueCStr(uri_obj);
+    UriUriA *uri = ALLOC(UriUriA);
+    struct uri_data *data;
+    VALUE generic_uri;
+
+    generic_uri = rb_class_new_instance(0, NULL, rb_cUri_Class);
+    Data_Get_Struct(generic_uri, struct uri_data, data);
+
+    data->uri = uri;
+
+    int result = parse_uri(str_uri, uri);
+
+    if (result == URI_SUCCESS) {
+        return generic_uri;
+    } else {
+        free_uri(uri);
+        return Qnil;
+    }
+}
+
+static VALUE
+rb_uriparser_s_parse_bang(VALUE klass, VALUE uri_obj)
 {
     char *str_uri = StringValueCStr(uri_obj);
     UriUriA *uri = ALLOC(UriUriA);
@@ -418,5 +457,7 @@ Init_uriparser_ext()
     rb_define_method(rb_cUri_Class, "unescape", rb_uriparser_unescape, 0);
     rb_define_method(rb_cUri_Class, "to_s", rb_uriparser_to_s, 0);
 
+    rb_define_singleton_method(rb_mUriParser, "can_parse?", rb_uriparser_s_can_parse, 1);
     rb_define_singleton_method(rb_mUriParser, "parse", rb_uriparser_s_parse, 1);
+    rb_define_singleton_method(rb_mUriParser, "parse!", rb_uriparser_s_parse_bang, 1);
 }
