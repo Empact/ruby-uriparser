@@ -138,11 +138,26 @@ rb_uriparser_s_parse(VALUE klass, VALUE uri_obj)
 
     data->uri = uri;
 
-    if( parse_uri(str_uri, uri) != URI_SUCCESS ) {
-        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s", str_uri);
+    int result = parse_uri(str_uri, uri);
+    if (result == URI_SUCCESS) {
+        return generic_uri;
+    } else if (result == URI_ERROR_SYNTAX) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, Parsed text violates expected format", str_uri);
+    } else if (result == URI_ERROR_NULL) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, One of the params passed was NULL although it mustn't be", str_uri);
+    } else if (result == URI_ERROR_MALLOC) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, Requested memory could not be allocated", str_uri);
+    } else if (result == URI_ERROR_OUTPUT_TOO_LARGE) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, Some output is to large for the receiving buffer", str_uri);
+    } else if (result == URI_ERROR_NOT_IMPLEMENTED) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, The called function is not implemented yet", str_uri);
+    } else if (result == URI_ERROR_RANGE_INVALID) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, The parameters passed contained invalid ranges", str_uri);
+    } else if (result == URI_ERROR_MEMORY_MANAGER_INCOMPLETE) {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, The UriMemoryManager passed does not implement all needed functions", str_uri);
+    } else {
+        rb_raise(rb_eUriInvalidURIError, "unable to parse the URI: %s, code: %i", str_uri, result);
     }
-
-    return generic_uri;
 }
 
 static VALUE
