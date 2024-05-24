@@ -2,10 +2,6 @@
 #include <ruby.h>
 #include <uriparser/Uri.h>
 
-#define FALSE 0
-#define TRUE 1
-typedef char bool;
-
 #define URI_TEXT_RANGE(uri_ptr, uri_field) \
     ((uri_ptr->uri_field.afterLast == uri_ptr->uri_field.first) ? \
         Qnil : \
