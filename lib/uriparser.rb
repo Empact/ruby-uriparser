@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 $LOAD_PATH.push __dir__
 require 'uriparser_ext'
 
