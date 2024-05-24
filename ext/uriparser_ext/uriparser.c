@@ -54,8 +54,6 @@
 
 #define VALID_TYPE(v) (!(NIL_P(v) || RB_TYPE_P(v, T_UNDEF)))
 
-/* Parser structure reused across requests */
-static UriParserStateA uri_parse_state;
 static VALUE rb_mUriParser;
 static VALUE rb_cUri_Class;
 static VALUE rb_eError;
@@ -382,9 +380,9 @@ compose_uri_from_data(struct uri_data *data)
 static int
 parse_uri(const char *str_uri, UriUriA *uri)
 {
-    uri_parse_state.uri = uri;
+    const char* error_pos;
 
-    return uriParseUriA(&uri_parse_state, str_uri);
+    return uriParseSingleUriA(uri, str_uri, &error_pos);
 }
 
 static void
