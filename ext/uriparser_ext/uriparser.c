@@ -157,7 +157,6 @@ rb_uriparser_s_parse(VALUE klass, VALUE uri_obj)
     if (result == URI_SUCCESS) {
         return generic_uri;
     } else {
-        free_uri(uri);
         return Qnil;
     }
 }
